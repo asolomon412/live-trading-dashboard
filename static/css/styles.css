@@ -275,7 +275,8 @@ button:active { opacity: 0.7; }
   align-items: center;
   gap: 8px;
   overflow: hidden;
-  flex-shrink: 0;
+  flex: 1 1 auto;   /* grows/shrinks to give controls priority */
+  min-width: 0;
   padding: 2px 6px;
   border-radius: 4px;
   transition: background 0.1s;
@@ -286,18 +287,26 @@ button:active { opacity: 0.7; }
   font-size: 12px;
   color: var(--accent);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .ticker-price {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
-  min-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .ticker-change {
   font-size: 11px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .ticker-change.up   { color: var(--green); }
 .ticker-change.down { color: var(--red); }
@@ -324,7 +333,7 @@ button:active { opacity: 0.7; }
   display: flex;
   align-items: center;
   gap: 4px;
-  flex-shrink: 0;
+  flex-shrink: 0;  /* controls always stay accessible */
 }
 
 .symbol-input {
