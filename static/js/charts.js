@@ -46,6 +46,8 @@ class PaneChart {
       wickUpColor:     "#3fb950",
       wickDownColor:   "#f85149",
     });
+
+    this._drawingMgr = new DrawingManager(container, this._chart, this._series);
   }
 
   // ── Data loading ───────────────────────────────────────────────────────────
@@ -195,16 +197,28 @@ class PaneChart {
     }
   }
 
+  setDrawingTool(tool) {
+    this._drawingMgr.setTool(tool);
+  }
+
+  clearDrawings() {
+    this._drawingMgr.clearAll();
+  }
+
   resize() {
     if (!this._chart) return;
     const { width, height } = this._container.getBoundingClientRect();
-    if (width > 0 && height > 0) this._chart.resize(width, height);
+    if (width > 0 && height > 0) {
+      this._chart.resize(width, height);
+      this._drawingMgr.render();
+    }
   }
 
   _resize() { this.resize(); }
 
   destroy() {
     this._ro.disconnect();
+    this._drawingMgr.destroy();
     if (this._chart) {
       this._chart.remove();
       this._chart = null;

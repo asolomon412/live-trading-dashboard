@@ -322,6 +322,19 @@ function createPane(paneId) {
   const pChart    = new PaneChart(container);
   charts.set(paneId, pChart);
 
+  // Wire drawing toolbar
+  const drawBtns = paneEl.querySelectorAll(".btn-draw:not(.btn-draw-clear)");
+  drawBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      drawBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      pChart.setDrawingTool(btn.dataset.tool);
+    });
+  });
+  paneEl.querySelector(".btn-draw-clear").addEventListener("click", () => {
+    pChart.clearDrawings();
+  });
+
   return paneEl;
 }
 
@@ -588,6 +601,19 @@ function init() {
   // Close any open indicator panel when clicking elsewhere
   document.addEventListener("click", () => {
     document.querySelectorAll(".indicator-panel:not([hidden])").forEach(p => { p.hidden = true; });
+  });
+
+  // ESC cancels any in-progress drawing and reverts all panes to cursor tool
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    charts.forEach((chart, paneId) => {
+      chart.setDrawingTool("cursor");
+      const paneEl = paneEls.get(paneId);
+      if (!paneEl) return;
+      paneEl.querySelectorAll(".btn-draw:not(.btn-draw-clear)").forEach(b => {
+        b.classList.toggle("active", b.dataset.tool === "cursor");
+      });
+    });
   });
 
   // Open WebSocket

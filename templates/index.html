@@ -71,11 +71,22 @@
           </div>
         </div>
       </div>
-      <div class="chart-container"></div>
+      <div class="chart-body">
+        <nav class="drawing-toolbar">
+          <button class="btn-draw active" data-tool="cursor"    title="Cursor — click a drawing to delete it">↖</button>
+          <button class="btn-draw"        data-tool="trendline" title="Trend Line — click two points">╱</button>
+          <button class="btn-draw"        data-tool="fibonacci" title="Fibonacci Retracement — click high then low">φ</button>
+          <button class="btn-draw"        data-tool="priceline" title="Price Line — click to place">─</button>
+          <span class="draw-sep"></span>
+          <button class="btn-draw btn-draw-clear" title="Clear all drawings">✕</button>
+        </nav>
+        <div class="chart-container"></div>
+      </div>
     </div>
   </template>
 
   <script src="/static/js/indicators.js"></script>
+  <script src="/static/js/drawing.js"></script>
   <script src="/static/js/charts.js"></script>
   <script src="/static/js/app.js"></script>
 </body>
