@@ -1,0 +1,382 @@
+/* Author: Antonella Solomon */
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0d1117;
+  --bg-pane:      #161b22;
+  --bg-toolbar:   #21262d;
+  --border:       #30363d;
+  --text:         #e6edf3;
+  --text-muted:   #8b949e;
+  --accent:       #58a6ff;
+  --green:        #3fb950;
+  --red:          #f85149;
+  --topbar-h:     46px;
+  --toolbar-h:    36px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "SF Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: var(--topbar-h);
+  padding: 0 14px;
+  background: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  position: relative;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topbar-controls label {
+  color: var(--text-muted);
+}
+
+/* ── Shared select/input styles ── */
+select, input[type="text"], button {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 3px 6px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+select:hover, input[type="text"]:hover, button:hover { border-color: var(--accent); }
+select:focus, input[type="text"]:focus { border-color: var(--accent); }
+
+button {
+  padding: 3px 8px;
+  font-size: 13px;
+  line-height: 1;
+}
+button:active { opacity: 0.7; }
+
+/* ── Connection indicator ── */
+.conn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+.conn-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: background 0.3s;
+}
+.conn-indicator.connected   .conn-dot { background: var(--green); }
+.conn-indicator.disconnected .conn-dot { background: var(--red); }
+.conn-indicator.connecting   .conn-dot { background: #f0883e; }
+.conn-label { color: var(--text-muted); }
+
+/* ── Chart grid ── */
+.chart-grid {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  height: calc(100vh - var(--topbar-h));
+  background: var(--bg);
+  position: relative;  /* anchor for resize handles */
+  overflow: hidden;
+}
+
+/* ── Resize handles ── */
+.grid-handle {
+  position: absolute;
+  z-index: 30;
+  background: var(--border);
+  transition: background 0.15s, opacity 0.15s;
+}
+.grid-handle-col {
+  width: 4px;
+  top: 0; bottom: 0;
+  transform: translateX(-50%);
+  cursor: col-resize;
+}
+.grid-handle-row {
+  height: 4px;
+  left: 0; right: 0;
+  transform: translateY(-50%);
+  cursor: row-resize;
+}
+.grid-handle:hover,
+.grid-handle.active {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+/* Grid layouts */
+.grid-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.grid-2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-6 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.grid-8 { grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+/* grid-3: first pane spans full width */
+.grid-3 .chart-pane:first-child {
+  grid-column: 1 / -1;
+}
+
+/* ── Chart pane ── */
+.chart-pane {
+  background: var(--bg-pane);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+
+/* ── Pane toolbar ── */
+.pane-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: var(--toolbar-h);
+  padding: 0 8px;
+  background: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  /* allow the indicator dropdown to overflow downward into the chart area */
+  overflow: visible;
+  position: relative;
+  z-index: 5;
+}
+
+/* ── Indicator dropdown ── */
+.indicator-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.btn-indicators {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.ind-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #0d1117;
+  border-radius: 9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.indicator-panel {
+  position: absolute;
+  top: calc(100% + 3px);
+  right: 0;
+  z-index: 200;
+  background: var(--bg-toolbar);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 168px;
+  padding: 4px 0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.ind-group {
+  padding: 2px 0;
+}
+
+.ind-group + .ind-group {
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+  padding-top: 4px;
+}
+
+.ind-group-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 2px 12px 4px;
+}
+
+.indicator-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.indicator-item:hover { background: rgba(255,255,255,0.05); }
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ind-item-label {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.indicator-item input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+}
+
+/* ── Ticker bar ── */
+.ticker-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+
+.ticker-symbol {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.ticker-price {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 70px;
+}
+
+.ticker-change {
+  font-size: 11px;
+  white-space: nowrap;
+}
+.ticker-change.up   { color: var(--green); }
+.ticker-change.down { color: var(--red); }
+
+/* Flash animations */
+@keyframes flash-green-anim {
+  0%   { background: rgba(63, 185, 80, 0.35); }
+  100% { background: transparent; }
+}
+@keyframes flash-red-anim {
+  0%   { background: rgba(248, 81, 73, 0.35); }
+  100% { background: transparent; }
+}
+
+.ticker-bar.flash-green {
+  animation: flash-green-anim 0.6s ease-out forwards;
+}
+.ticker-bar.flash-red {
+  animation: flash-red-anim 0.6s ease-out forwards;
+}
+
+/* ── Pane controls ── */
+.pane-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.symbol-input {
+  width: 72px;
+  text-transform: uppercase;
+}
+
+/* ── Lightweight Charts container ── */
+.chart-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;  /* clip chart canvas; toolbar overflow:visible handles the dropdown */
+}
+
+.chart-container > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Loading / error overlay ── */
+.pane-overlay {
+  position: absolute;
+  inset: var(--toolbar-h) 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-pane);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ── Responsive: collapse grid on small screens ── */
+@media (max-width: 700px) {
+  .grid-4, .grid-6, .grid-8 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: unset;
+    grid-auto-rows: 240px;
+  }
+  .grid-6, .grid-8 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .grid-2, .grid-3, .grid-4, .grid-6, .grid-8 {
+    grid-template-columns: 1fr;
+    grid-template-rows: unset;
+    grid-auto-rows: 260px;
+  }
+  .grid-3 .chart-pane:first-child {
+    grid-column: unset;
+  }
+}
